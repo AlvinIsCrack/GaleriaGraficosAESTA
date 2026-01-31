@@ -1,0 +1,44 @@
+@reference "tailwindcss";
+
+#main-header {
+    background-color: var(--color-card);
+    color: var(--color-card-foreground);
+
+    @apply px-6 md:px-8 py-2.5 border-b relative flex flex-row gap-4;
+
+    #header-logo {
+        @apply hidden md:block place-self-center [&_svg]:scale-150 [&_svg]:size-full size-10 text-orange-400;
+    }
+
+    #header-title {
+        h1 {
+            @apply text-4xl uppercase font-bold -mb-2 -ml-0.5 text-orange-400;
+        }
+
+        p {
+            @apply text-base;
+        }
+    }
+
+    #header-info {
+        @apply right-0 text-right my-auto lg:py-2 leading-tight text-xs lg:text-sm bottom-0 mt-auto ml-auto;
+    }
+}
+
+#main-dashboard {
+    @apply px-8 pt-2 lg:pt-4 space-y-2 relative size-full mx-auto min-h-0 lg:max-h-[calc(95vh-5rem)];
+
+    #dashboard-content {
+        @apply grid grid-cols-1 md:grid-cols-2 gap-0.5;
+        @apply lg:grid-cols-3 lg:grid-flow-col-dense lg:gap-1 lg:xl:gap-2 lg:size-full;
+
+        >div {
+            @apply rounded-lg border-2 size-full flex-1 relative min-w-0 min-h-40 md:min-h-0;
+
+            h2 {
+                color: var(--color-muted-foreground);
+                @apply text-sm md:text-base lg:text-lg uppercase font-bold absolute z-10 top-1 md:top-1.5 lg:top-2 left-2.5 tracking-tighter lg:tracking-tight;
+            }
+        }
+    }
+}

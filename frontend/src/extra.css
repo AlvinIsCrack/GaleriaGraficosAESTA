@@ -1,0 +1,32 @@
+@reference "tailwindcss";
+
+:root {
+    --repeated-bg-size: 40px;
+    --repeated-bg-offset-x: 8px;
+}
+
+.bg-grid {
+    background-image: linear-gradient(to right, var(--color-muted) 2px, transparent 2px), linear-gradient(to bottom, var(--color-muted) 2px, transparent 2px);
+    background-size: var(--repeated-bg-size) var(--repeated-bg-size);
+    animation: reppeatedPatternMoveDiagonal 5s linear infinite;
+}
+
+.bg-polka-dots {
+    background-image: radial-gradient(var(--color-muted) 2px, transparent 2px);
+    background-size: var(--repeated-bg-size) var(--repeated-bg-size);
+    animation: reppeatedPatternMoveDiagonal 5s linear infinite;
+}
+
+@keyframes reppeatedPatternMoveDiagonal {
+    0% {
+        background-position: var(--repeated-bg-offset-x) 0;
+    }
+
+    100% {
+        background-position: calc(var(--repeated-bg-size) + var(--repeated-bg-offset-x)) var(--repeated-bg-size);
+    }
+}
+
+.d3-tooltip {
+    @apply absolute invisible bg-black/80 text-white px-2.5 py-1.25 rounded text-[12px] pointer-events-none z-10 whitespace-nowrap;
+}

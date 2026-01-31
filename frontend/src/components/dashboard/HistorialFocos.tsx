@@ -1,0 +1,193 @@
+import { useEffect, useRef, useMemo } from "react";
+import * as d3 from 'd3';
+import { useResizeObserver } from "../../hooks/useResizeObserver";
+
+export default function HistorialFocos() {
+    const svgRef = useRef<SVGSVGElement>(null);
+    const containerRef = useRef<HTMLDivElement>(null);
+    const dimensions = useResizeObserver(containerRef);
+
+    const data = useMemo(() => {
+        const padding = 7;
+        const totalDays = 30;
+
+        const extendedData = Array.from({ length: totalDays + padding }).map((_, i) => {
+            const date = new Date();
+            date.setDate(date.getDate() - (totalDays + padding - 1 - i));
+
+            const month = date.getMonth();
+            const isSummer = month >= 11 || month <= 2;
+            const baseVal = isSummer ? 2 : 0;
+            const value = Math.max(1, baseVal + Math.random() * (isSummer ? 3 : 1));
+
+            return {
+                label: date.toLocaleDateString('es-CL', { day: '2-digit', month: '2-digit' }),
+                value: value
+            };
+        });
+
+        return extendedData.map((d, i, arr) => {
+            const start = Math.max(0, i - 3);
+            const end = Math.min(arr.length, i + 4);
+            const avg = d3.mean(arr.slice(start, end), v => v.value) || 0;
+            return { ...d, avgValue: avg };
+        }).slice(padding).map((d, i) => ({ ...d, index: i }));
+    }, []);
+
+    useEffect(() => {
+        if (!svgRef.current || !dimensions.width) return;
+
+        const { width, height } = dimensions;
+        const margin = { top: 30, right: 10, bottom: 40, left: 35 };
+        const chartWidth = width - margin.left - margin.right;
+        const chartHeight = height - margin.top - margin.bottom;
+
+        const svg = d3.select(svgRef.current);
+        svg.selectAll("*").remove();
+
+        const defs = svg.append("defs");
+        const gradientId = "area-gradient-days";
+        const gradient = defs.append("linearGradient")
+            .attr("id", gradientId)
+            .attr("x1", "0%").attr("y1", "0%").attr("x2", "0%").attr("y2", "100%");
+
+        gradient.append("stop").attr("offset", "0%").attr("stop-color", "var(--color-amber-500)").attr("stop-opacity", 0.8);
+        gradient.append("stop").attr("offset", "100%").attr("stop-color", "var(--color-orange-600)").attr("stop-opacity", 0);
+
+        const clipId = "reveal-clip-days";
+        const clipRect = defs.append("clipPath")
+            .attr("id", clipId)
+            .append("rect")
+            .attr("width", 0)
+            .attr("height", height);
+
+        const x = d3.scaleLinear().domain([0, data.length - 1]).range([0, chartWidth]);
+        const y = d3.scaleLinear().domain([0, d3.max(data, d => d.value) || 100]).nice().range([chartHeight, 0]);
+
+        const group = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+
+        // Eje X
+        group.append("text")
+            .attr("text-anchor", "end")
+            .attr("x", chartWidth)
+            .attr("y", chartHeight + 40)
+            .attr("fill", "var(--color-muted-foreground)")
+            .attr("font-size", "11px")
+            .text("Tiempo (Días)");
+
+        // Eje Y
+        group.append("text")
+            .attr("text-anchor", "end")
+            .attr("transform", "rotate(-90)")
+            .attr("y", -30)
+            .attr("x", 0)
+            .attr("fill", "var(--color-muted-foreground)")
+            .attr("font-size", "11px")
+            .text("Cantidad de Focos");
+
+        // Cuadrícula X
+        group.append("g")
+            .attr("transform", `translate(0,${chartHeight})`)
+            .call(d3.axisBottom(x).ticks(10).tickSize(-chartHeight).tickFormat(() => ""))
+            .attr("color", "var(--color-border)").style("opacity", 0.5).select(".domain").remove();
+
+        // Cuadrícula Y
+        group.append("g")
+            .call(d3.axisLeft(y).ticks(5).tickSize(-chartWidth).tickFormat(() => ""))
+            .attr("color", "var(--color-border)").style("opacity", 0.5).select(".domain").remove();
+
+        // Generadores
+        const areaGenerator = d3.area<typeof data[0]>()
+            .x(d => x(d.index)).y0(chartHeight).y1(d => y(d.value)).curve(d3.curveMonotoneX);
+        const lineGenerator = d3.line<typeof data[0]>()
+            .x(d => x(d.index)).y(d => y(d.value)).curve(d3.curveMonotoneX);
+        const avgLineGenerator = d3.line<typeof data[0]>()
+            .x(d => x(d.index)).y(d => y(d.avgValue)).curve(d3.curveBasis);
+
+        const chartBody = group.append("g").attr("clip-path", `url(#${clipId})`);
+
+        // Datos
+        chartBody.append("path").datum(data).attr("d", areaGenerator).attr("fill", `url(#${gradientId})`);
+        chartBody.append("path").datum(data).attr("d", lineGenerator).attr("fill", "none").attr("stroke", "var(--color-orange-400)").attr("stroke-width", 2);
+
+        // Promedio de datos
+        chartBody.append("path").datum(data).attr("d", avgLineGenerator).attr("fill", "none").attr("stroke", "var(--color-muted-foreground)").attr("stroke-width", 2).attr("stroke-dasharray", "8,4");
+
+        // Interactividad
+        const focusLine = group.append("line")
+            .attr("y1", 0)
+            .attr("y2", chartHeight)
+            .attr("stroke", "var(--color-orange-500)")
+            .attr("stroke-width", 1)
+            .style("opacity", 0);
+
+        const focusCircle = group.append("circle")
+            .attr("r", 5)
+            .attr("fill", "var(--color-orange-500)")
+            .attr("stroke", "white")
+            .attr("stroke-width", 2)
+            .style("opacity", 0);
+
+        const tooltip = d3.select(containerRef.current)
+            .append("div")
+            .attr("class", "d3-tooltip");
+
+        const overlay = group.append("rect")
+            .attr("width", chartWidth)
+            .attr("height", chartHeight)
+            .attr("fill", "transparent")
+            .style("pointer-events", "all");
+
+        const handleInteraction = (event: any) => {
+            const [mouseX] = d3.pointer(event);
+            const xIndex = Math.round(x.invert(mouseX));
+            const d = data[xIndex];
+
+            if (d) {
+                focusLine.attr("x1", x(d.index)).attr("x2", x(d.index)).style("opacity", 1);
+                focusCircle.attr("cx", x(d.index)).attr("cy", y(d.value)).style("opacity", 1);
+
+                tooltip
+                    .style("visibility", "visible")
+                    .html(`<strong>${d.label}</strong><br/>Valor: ${d.value.toFixed(1)}`)
+                    .style("top", `${y(d.value) + margin.top - 40}px`)
+                    .style("left", `${x(d.index) + margin.left + 10}px`);
+            }
+        };
+
+        overlay
+            .on("mousemove touchmove", handleInteraction)
+            .on("click", handleInteraction)
+            .on("mouseout touchend", () => {
+                focusLine.style("opacity", 0);
+                focusCircle.style("opacity", 0);
+                tooltip.style("visibility", "hidden");
+            });
+
+        // Ticks X
+        group.append("g")
+            .attr("transform", `translate(0,${chartHeight})`)
+            .call(d3.axisBottom(x).ticks(6).tickFormat(i => data[i as number]?.label || "").tickSize(5).tickPadding(10))
+            .attr("color", "var(--color-muted-foreground)").attr("font-size", "10px").attr("font-family", "monospace")
+            .select(".domain").attr("stroke", "var(--color-border)").style("opacity", 0.3);
+
+        // Ticks Y
+        group.append("g")
+            .call(d3.axisLeft(y).ticks(5).tickSize(10).tickPadding(8))
+            .attr("color", "var(--color-muted-foreground)").attr("font-size", "10px").attr("font-family", "monospace")
+            .select(".domain").attr("stroke", "var(--color-border)").style("opacity", 0.3);
+
+        // Animación de entrada
+        clipRect.transition().duration(2000).ease(d3.easeCubicOut).attr("width", width);
+
+        return () => { tooltip.remove(); };
+    }, [dimensions, data]);
+
+    return (
+        <div className="relative flex-1 size-full flex flex-col overflow-hidden">
+            <div ref={containerRef} className="flex-1 size-full min-h-0 p-4 touch-none">
+                <svg ref={svgRef} width="100%" height="100%" className="overflow-visible" />
+            </div>
+        </div>
+    );
+}

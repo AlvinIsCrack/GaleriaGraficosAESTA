@@ -1,0 +1,28 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual Environments
+venv/
+.venv/
+env/
+ENV/
+bin/
+lib/
+include/
+
+# Environment variables
+.env
+
+# FastAPI / Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Logs
+*.log
+
+# IDEs (Opcional, pero recomendado)
+.vscode/
+.idea/
