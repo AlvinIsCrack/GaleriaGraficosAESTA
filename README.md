@@ -1,5 +1,6 @@
 # Desafío Técnico: Galería de Gráficos Responsive - AESTA
 <img width="1865" height="988" alt="image" src="https://github.com/user-attachments/assets/b73f0596-de84-4ef9-952b-f0df1d0ffd2c" />
+> Por Lucas Enríquez Rivera, estudiante de 3er año de Ing. Civil Informática.
 
 ## Descripción
 Este repositorio contiene la solución al desafío técnico planteado por **AESTA** (*Asesorías Estratégicas Ambientales*). El proyecto consiste en una aplicación de arquitectura full-stack que integra un `backend` desarrollado en FastAPI y un `frontend` basado en React (Vite + TypeScript), diseñado para la visualización de datos de alta fidelidad y con un enfoque estrictamente responsivo.
@@ -42,11 +43,13 @@ El servidor en **FastAPI** implementa un motor de generación de datos que no se
 El endpoint principal genera datos históricos de focos de incendios para dotar de cohesión visual al proyecto.
 
 1. Navegar al directorio `/backend`.
-2. (Recomendado) Configurar un entorno virtual: `python -m venv venv`.
-   - **Windows**: `.\venv\Scripts\activate`
-   - **Mac/Linux**: `source venv/bin/activate`
-3. Instalar dependencias: `pip install -r requirements.txt`.
-4. Ejecutar el servicio: `python main.py` o `fastapi dev main.py`.
+> [!NOTE]
+> Se usó un entorno virtual para el desarrollo. Para replicar: `python -m venv venv`.
+> Luego, desde la misma consola activar el entorno virtual:
+>  - **Windows**: `.\venv\Scripts\activate`
+>  - **Mac/Linux**: `source venv/bin/activate`
+2. Instalar dependencias: `pip install -r requirements.txt`.
+3. Ejecutar el servicio: `python main.py` o `fastapi dev main.py`.
 
 ### Frontend
 Se aplicaron *media queries* y se experimentó con *container queries* para asegurar que cada visualización mantenga su legibilidad y proporciones.
