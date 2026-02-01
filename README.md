@@ -19,16 +19,16 @@ El servidor en **FastAPI** implementa un motor de generación de datos que no se
 - **Pre-procesamiento en Servidor:** Cálculo de **Medias Móviles Centradas** (`avgValue`) para entregar datos procesados listos para su visualización, reduciendo la carga computacional en el cliente.
 
 ### Frontend: Visualización y Estado Global
-- **Visualización con D3.js:** Implementación de cartografía interactiva utilizando **GeoJSON** para el mapa de Chile y renderizado dinámico de gráficos de líneas con ejes escalables.
+- **Visualización con D3.js:** Implementación de cartografía interactiva utilizando **GeoJSON** para el mapa de Chile y renderizado dinámico de gráficos con ejes escalables.
 - **Estado Global con Zustand:** Gestión de filtros, regiones activas y datos mediante un almacén centralizado, evitando el acoplamiento excesivo entre componentes (*prop drilling*).
 - **Hooks Personalizados:** Uso de `useResizeObserver` para garantizar que los elementos SVG y los contenedores de D3 se ajusten en tiempo real a los cambios de resolución.
 
 ## Stack Tecnológico
-- **Backend:** FastAPI, Uvicorn.
-- **Frontend:** React 19, TypeScript, Vite, SWC.
-- **Estado y Lógica:** Zustand, Custom Hooks.
-- **Visualización:** D3.js, Framer Motion (para transiciones fluidas de datos).
-- **Estilizado:** Tailwind CSS, PostCSS, Tailwind Variants.
+- **Backend:** [FastAPI](https://fastapi.tiangolo.com/), [Uvicorn](https://uvicorn.dev/).
+- **Frontend:** React 19, TypeScript, [Vite](https://vite.dev/), [SWC](https://swc.rs/).
+- **Estado y Lógica:** [Zustand](https://zustand-demo.pmnd.rs/), Custom Hooks.
+- **Visualización:** [D3.js](https://d3js.org/), [Framer Motion](https://motion.dev/) (para transiciones fluidas de datos y animaciones).
+- **Estilizado:** [Tailwind CSS](https://tailwindcss.com/), [PostCSS](https://postcss.org/), [Tailwind Variants](https://www.tailwind-variants.org/).
 
 ## Requisitos Cumplidos
 1. **Layout Responsive:** Implementación de un Grid dinámico basado en puntos de interrupción estándar:
