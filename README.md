@@ -22,11 +22,11 @@ El servidor en **FastAPI** implementa un motor de generación de datos que no se
 - **Hooks Personalizados:** Uso de `useResizeObserver` para garantizar que los elementos SVG y los contenedores de D3 se ajusten en tiempo real a los cambios de resolución.
 
 ## Stack Tecnológico
-- **Backend:** FastAPI (Python 3.x), Uvicorn, Pydantic.
-- **Frontend:** React 18, TypeScript, Vite, SWC.
+- **Backend:** FastAPI, Uvicorn.
+- **Frontend:** React 19, TypeScript, Vite, SWC.
 - **Estado y Lógica:** Zustand, Custom Hooks.
 - **Visualización:** D3.js, Framer Motion (para transiciones fluidas de datos).
-- **Estilizado:** Tailwind CSS, PostCSS, Tailwind Variants, Container Queries.
+- **Estilizado:** Tailwind CSS, PostCSS, Tailwind Variants.
 
 ## Requisitos Cumplidos
 1. **Layout Responsive:** Implementación de un Grid dinámico basado en puntos de interrupción estándar:
