@@ -61,4 +61,5 @@ Se aplicaron *media queries* y se experimentó con *container queries* para aseg
 
 ---
 *Iconografía obtenida mediante [Icones](https://icones.js.org/).*
+
 *Archivo GeoJSON extraído de [chile-geojson](https://github.com/caracena/chile-geojson)*
