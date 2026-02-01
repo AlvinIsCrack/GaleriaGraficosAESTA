@@ -34,7 +34,7 @@ export default function GaugeRiesgo() {
         const regionActual = ANALISIS_DATA.clima[indexRegion];
         const svg = d3.select(svgRef.current);
 
-        const radius = Math.min(dimensions.width * .48, dimensions.height * .95);
+        const radius = Math.min(dimensions.width * .5, dimensions.height * .98);
         const innerRadiusBase = radius * 0.5;
 
         let chartGroup = svg.select<SVGGElement>(".chart-group");
@@ -169,7 +169,7 @@ export default function GaugeRiesgo() {
                 // Valor central
                 const valueRadius = (radius + innerRadiusBase) / 2 - 10;
                 const vTxt = group.selectAll(".value-text").data([metrica]).join("text")
-                    .attr("class", "value-text text-xl @xs:text-3xl @sm:text-5xl font-black tracking-tighter tabular-nums")
+                    .attr("class", "value-text text-xl @2xs:text-2xl @xs:text-4xl @sm:text-5xl font-black tracking-tighter tabular-nums")
                     .attr("text-anchor", "middle")
                     .attr("dominant-baseline", "middle")
                     .attr("transform", `rotate(${midAngleDeg}) translate(0, -${valueRadius})`)
@@ -178,7 +178,7 @@ export default function GaugeRiesgo() {
                 // Unidad
                 vTxt.text(null);
                 vTxt.append("tspan").text(metrica.valor);
-                vTxt.append("tspan").attr("class", "text-xs @lg:text-sm fill-white tracking-tight font-normal! opacity-40 mix-blend-plus-lighter").attr("dx", 4).text(metrica.unidad);
+                vTxt.append("tspan").attr("class", "text-xs @xs:text-sm @xl:text-base fill-white tracking-tight font-normal! opacity-40 mix-blend-plus-lighter").attr("dx", 4).text(metrica.unidad);
             });
     }, [dimensions, indexRegion]);
 
@@ -188,7 +188,7 @@ export default function GaugeRiesgo() {
 
         const svg = d3.select(svgRef.current);
 
-        const radius = Math.min(dimensions.width * .48, dimensions.height * .95);
+        const radius = Math.min(dimensions.width * .5, dimensions.height * .98);
         const innerRadiusBase = radius * 0.5;
 
         const progressScale = d3.scaleLinear()
