@@ -3,6 +3,7 @@ import * as d3 from 'd3';
 import { Timer } from "../../helpers/timer";
 import { useResizeObserver } from "../../hooks/useResizeObserver";
 import { ANALISIS_DATA } from "../../logic/analisis";
+import { useReducedMotion } from "framer-motion";
 
 const DURACION_REGION_MS = 6000;
 export default function GaugeRiesgo() {
@@ -13,6 +14,8 @@ export default function GaugeRiesgo() {
     const [indexRegion, setIndexRegion] = useState(0);
     const [timeLeft, setTimeLeft] = useState(DURACION_REGION_MS);
     const timerRef = useRef<Timer | null>(null);
+
+    const reducedMotion = useReducedMotion();
 
     useEffect(() => {
         timerRef.current = new Timer(
@@ -37,6 +40,9 @@ export default function GaugeRiesgo() {
         const radius = Math.min(dimensions.width * .5, dimensions.height * .98);
         const innerRadiusBase = radius * 0.5;
 
+        const duration = reducedMotion ? 0 : 500;
+        const longDuration = reducedMotion ? 0 : 600;
+
         let chartGroup = svg.select<SVGGElement>(".chart-group");
         if (chartGroup.empty())
             chartGroup = svg.append("g").attr("class", "chart-group");
@@ -55,13 +61,13 @@ export default function GaugeRiesgo() {
                     .attr("transform", "translate(0, 10)")
                     .style("opacity", 0)
                     .text(d => d)
-                    .call(enter => enter.transition().duration(500)
+                    .call(enter => enter.transition().duration(duration)
                         .style("opacity", 1)
                         .attr("transform", "translate(0, 0)")),
                 update => update,
                 exit => exit
                     .interrupt()
-                    .transition().duration(500)
+                    .transition().duration(duration)
                     .style("opacity", 0)
                     .attr("transform", "translate(0, -10)")
                     .remove()
@@ -98,11 +104,11 @@ export default function GaugeRiesgo() {
                     const groupEnter = enter.append("g")
                         .attr("class", "metric-group")
                         .style("opacity", 0)
-                        .attr("transform", "rotate(-60)");
+                        .attr("transform", reducedMotion ? "rotate(0)" : "rotate(-60)");
 
                     groupEnter.transition()
-                        .delay(400)
-                        .duration(600)
+                        .delay(reducedMotion ? 0 : 400)
+                        .duration(longDuration)
                         .ease(d3.easeBackOut)
                         .style("opacity", 1)
                         .attr("transform", "rotate(0)");
@@ -113,10 +119,10 @@ export default function GaugeRiesgo() {
                 exit => exit
                     .interrupt()
                     .transition()
-                    .duration(400)
+                    .duration(reducedMotion ? 0 : 400)
                     .ease(d3.easeBackIn)
                     .style("opacity", 0)
-                    .attr("transform", "rotate(60)")
+                    .attr("transform", reducedMotion ? "rotate(0)" : "rotate(60)")
                     .remove()
             )
             .each(function (d) {
@@ -206,7 +212,8 @@ export default function GaugeRiesgo() {
             .join("path")
             .attr("class", "timer-progress-arc")
             .attr("d", progressArc as any)
-            .attr("fill", "var(--color-muted-foreground)");
+            .attr("fill", "var(--color-muted-foreground)")
+            .attr("opacity", reducedMotion ? 0.25 : 1);
 
     }, [timeLeft, dimensions]);
 

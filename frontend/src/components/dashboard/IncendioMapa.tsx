@@ -6,6 +6,7 @@ import { MOCK_FOCOS } from '../../logic/puntos/focos';
 import { isIncendioActive } from '../../logic/core/utils';
 import { CHILE_GEO_DATA } from '../../logic/geodata/chile';
 import MotionBlurDigit from '../ui/MotionBlurDigit';
+import { useReducedMotion } from 'framer-motion';
 
 /**
  * Componente de Visualización Geoespacial.
@@ -23,6 +24,7 @@ export default function IncendioMapa() {
     const regionsGroupRef = useRef<d3.Selection<any, any, any, any> | null>(null);
 
     const hasAnimated = useRef(false);
+    const reducedMotion = useReducedMotion();
 
     useEffect(() => {
         if (!svgRef.current || dimensions.width === 0) return;
@@ -96,8 +98,8 @@ export default function IncendioMapa() {
             .attr("stroke-width", 2)
             .attr("vector-effect", "non-scaling-stroke");
 
-        /* Animación condicional, solo al montar */
-        if (!hasAnimated.current)
+        /* Animación condicional, solo al montar, y si el usuario no tiene prefers-reduced-motion */
+        if (!hasAnimated.current && !reducedMotion)
             regionsGroupRef.current
                 .attr("opacity", 0)
                 .transition()
@@ -148,7 +150,7 @@ export default function IncendioMapa() {
             .attr("fill", d => isIncendioActive(d) ? "var(--color-amber-500)" : "var(--color-muted-foreground)")
             .attr("stroke", "var(--color-border)");
 
-        if (!hasAnimated.current)
+        if (!hasAnimated.current && !reducedMotion)
             focosMain
                 .attr("r", 0)
                 .attr("opacity", 0)
@@ -191,7 +193,7 @@ export default function IncendioMapa() {
                 .attr("stroke-linecap", "round");
         });
 
-        if (!hasAnimated.current)
+        if (!hasAnimated.current && !reducedMotion)
             focosNeutral
                 .attr("opacity", 0)
                 .transition()

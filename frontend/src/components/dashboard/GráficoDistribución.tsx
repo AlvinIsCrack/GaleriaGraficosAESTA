@@ -3,6 +3,7 @@ import * as d3 from 'd3';
 import useViewStore from '../../state/viewStore';
 import { useResizeObserver } from '../../hooks/useResizeObserver';
 import { ANALISIS_DATA } from '../../logic/analisis';
+import { useReducedMotion } from 'framer-motion';
 
 export default function GráficoDistribución() {
     const svgRef = useRef<SVGSVGElement>(null);
@@ -11,6 +12,7 @@ export default function GráficoDistribución() {
     const setFocusedRegion = useViewStore((state) => state.setFocusedRegion);
 
     const hasAnimated = useRef(false);
+    const reducedMotion = useReducedMotion();
 
     useEffect(() => {
         if (!svgRef.current || !dimensions.width) return;
@@ -56,7 +58,7 @@ export default function GráficoDistribución() {
             .style("cursor", "help");
 
         /** Evitar animación de entrada al ajustar tamaño */
-        if (!hasAnimated.current)
+        if (!hasAnimated.current && !reducedMotion)
             bars.attr("width", 0)
                 .transition()
                 .duration(800)
@@ -101,7 +103,7 @@ export default function GráficoDistribución() {
             .text((d: any) => d.cantidad);
 
         /** Evitar animación al ajustar tamaño */
-        if (!hasAnimated.current)
+        if (!hasAnimated.current && !reducedMotion)
             labels
                 .attr("x", 0)
                 .attr("opacity", 0)

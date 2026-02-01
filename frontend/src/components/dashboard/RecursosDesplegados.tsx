@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import * as d3 from 'd3';
 import { useResizeObserver } from '../../hooks/useResizeObserver';
 import { ANALISIS_DATA } from '../../logic/analisis';
+import { useReducedMotion } from 'framer-motion';
 
 export default function RecursosDesplegados() {
     const svgRef = useRef<SVGSVGElement>(null);
@@ -9,6 +10,7 @@ export default function RecursosDesplegados() {
     const dimensions = useResizeObserver(containerRef);
 
     const hasAnimated = useRef(false);
+    const reducedMotion = useReducedMotion();
 
     const data = ANALISIS_DATA.recursos;
     const totalRecursos = data.reduce((acc, d) => acc + d.cantidad, 0);
@@ -43,7 +45,7 @@ export default function RecursosDesplegados() {
             .attr("class", d => `drop-shadow-sm ${d.data.class}`);
 
         /** Solo animar al inicio */
-        if (!hasAnimated.current) {
+        if (!hasAnimated.current && !reducedMotion) {
             paths.attr("d", arc)
                 .transition().duration(1000).attrTween("d", function (d) {
                     const i = d3.interpolate(d.startAngle + 0.1, d.endAngle);
