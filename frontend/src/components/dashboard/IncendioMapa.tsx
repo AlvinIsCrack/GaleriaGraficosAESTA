@@ -20,7 +20,7 @@ export default function IncendioMapa() {
     const containerRef = useRef<HTMLDivElement>(null);
     const dimensions = useResizeObserver(containerRef);
     const focusedRegion = useViewStore((state) => state.focusedRegion);
-    const regionsGroupRef = useRef<d3.Selection<SVGPathElement, any, SVGGElement, any> | null>(null);
+    const regionsGroupRef = useRef<d3.Selection<any, any, any, any> | null>(null);
 
     const hasAnimated = useRef(false);
 
