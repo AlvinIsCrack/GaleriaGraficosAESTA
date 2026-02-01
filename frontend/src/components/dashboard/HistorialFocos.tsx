@@ -84,7 +84,7 @@ export default function HistorialFocos() {
 
         const group = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
 
-        // Eje X
+        // Label Eje X
         group.append("text")
             .attr("text-anchor", "end")
             .attr("x", chartWidth)
@@ -93,11 +93,11 @@ export default function HistorialFocos() {
             .attr("font-size", "11px")
             .text("Tiempo (Días)");
 
-        // Eje Y
+        // Label Eje Y
         group.append("text")
             .attr("text-anchor", "end")
             .attr("transform", "rotate(-90)")
-            .attr("y", -30)
+            .attr("y", -40)
             .attr("x", 0)
             .attr("fill", "var(--color-muted-foreground)")
             .attr("font-size", "11px")
