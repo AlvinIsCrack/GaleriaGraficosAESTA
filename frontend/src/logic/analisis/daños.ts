@@ -1,3 +1,8 @@
+/**
+ * Lógica de cálculo para la estimación de daños ambientales y sociales,
+ * incluyendo área afectada, población en riesgo y pérdida de biomasa.
+ */
+
 import { MOCK_FOCOS } from "../puntos/focos";
 import { KM_POR_GRADO, METROS_POR_HECTAREA } from "../core/constantes";
 import { calcularAreaCirculo } from "./helpers";

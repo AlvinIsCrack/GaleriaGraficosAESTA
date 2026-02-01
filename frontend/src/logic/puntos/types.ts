@@ -1,3 +1,5 @@
+// Types usados por los focos, y el resto del código
+
 export type EstadoIncendio =
     | 'detectado'
     | 'confirmado'

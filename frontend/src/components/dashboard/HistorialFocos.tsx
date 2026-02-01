@@ -1,44 +1,62 @@
-import { useEffect, useRef, useMemo } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as d3 from 'd3';
 import { useResizeObserver } from "../../hooks/useResizeObserver";
+import MaterialSymbolsSignalCellularConnectedNoInternet0BarRounded from "../icons/MaterialSymbolsSignalCellularConnectedNoInternet0BarRounded";
+import GgSpinner from "../icons/GgSpinner";
+import { MOCK_FOCOS } from "../../logic/puntos/focos";
+import { motion } from "framer-motion";
+
+/** Dato que devuelve el backend de Python */
+type DataPoint = {
+    label: string;
+    value: number;
+    avgValue: number;
+    index: number;
+};
 
 export default function HistorialFocos() {
     const svgRef = useRef<SVGSVGElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const dimensions = useResizeObserver(containerRef);
 
-    const data = useMemo(() => {
-        const padding = 7;
-        const totalDays = 30;
+    const [data, setData] = useState<DataPoint[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(false);
 
-        const extendedData = Array.from({ length: totalDays + padding }).map((_, i) => {
-            const date = new Date();
-            date.setDate(date.getDate() - (totalDays + padding - 1 - i));
+    useEffect(() => {
+        const controller = new AbortController();
+        setLoading(true);
+        setError(false);
 
-            const month = date.getMonth();
-            const isSummer = month >= 11 || month <= 2;
-            const baseVal = isSummer ? 2 : 0;
-            const value = Math.max(1, baseVal + Math.random() * (isSummer ? 3 : 1));
+        /** Se maneja el estado de completado, cargando y con error.
+         * Para la conexión con cors, se envían credenciales.
+         */
+        fetch(`http://127.0.0.1:8000/api/chart-data`, { signal: controller.signal, credentials: 'include' })
+            .then(res => {
+                if (!res.ok) throw new Error("Error en la petición");
+                return res.json();
+            })
+            .then((resData: DataPoint[]) => {
+                resData[resData.length - 1].value = MOCK_FOCOS.length; /** Esto es solo para que 'coincida' la generación del backend con el frontend. Siéntase libre de comentar esta línea por cualquier motivo. La comunicación efectiva entre el backend y el frontend sigue haciéndose. */
+                setData(resData);
+                setLoading(false);
+            })
+            .catch(err => {
+                if (err.name !== 'AbortError') {
+                    console.error("Error cargando datos:", err);
+                    setError(true);
+                    setLoading(false);
+                }
+            });
 
-            return {
-                label: date.toLocaleDateString('es-CL', { day: '2-digit', month: '2-digit' }),
-                value: value
-            };
-        });
-
-        return extendedData.map((d, i, arr) => {
-            const start = Math.max(0, i - 3);
-            const end = Math.min(arr.length, i + 4);
-            const avg = d3.mean(arr.slice(start, end), v => v.value) || 0;
-            return { ...d, avgValue: avg };
-        }).slice(padding).map((d, i) => ({ ...d, index: i }));
+        return () => controller.abort();
     }, []);
 
     useEffect(() => {
-        if (!svgRef.current || !dimensions.width) return;
+        if (loading || error || !svgRef.current || !dimensions.width || data.length === 0) return;
 
         const { width, height } = dimensions;
-        const margin = { top: 30, right: 10, bottom: 40, left: 35 };
+        const margin = { top: 30, right: 10, bottom: 40, left: 50 };
         const chartWidth = width - margin.left - margin.right;
         const chartHeight = height - margin.top - margin.bottom;
 
@@ -98,11 +116,13 @@ export default function HistorialFocos() {
 
         // Generadores
         const areaGenerator = d3.area<typeof data[0]>()
-            .x(d => x(d.index)).y0(chartHeight).y1(d => y(d.value)).curve(d3.curveMonotoneX);
+            .x(d => x(d.index)).y0(chartHeight).y1(d => y(d.value));
+
         const lineGenerator = d3.line<typeof data[0]>()
-            .x(d => x(d.index)).y(d => y(d.value)).curve(d3.curveMonotoneX);
+            .x(d => x(d.index)).y(d => y(d.value));
+
         const avgLineGenerator = d3.line<typeof data[0]>()
-            .x(d => x(d.index)).y(d => y(d.avgValue)).curve(d3.curveBasis);
+            .x(d => x(d.index)).y(d => y(d.avgValue));
 
         const chartBody = group.append("g").attr("clip-path", `url(#${clipId})`);
 
@@ -181,10 +201,34 @@ export default function HistorialFocos() {
         clipRect.transition().duration(2000).ease(d3.easeCubicOut).attr("width", width);
 
         return () => { tooltip.remove(); };
-    }, [dimensions, data]);
+    }, [dimensions, data, loading, error]);
 
     return (
         <div className="relative flex-1 size-full flex flex-col overflow-hidden">
+            {loading && (
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{
+                        duration: .2,
+                        delay: 0.2 // Delay para que no se muestre con 'parpadeo' con una conexión rápida
+                        // del backend con el frontend, más que nada por UX.
+                    }}
+                >
+                    <div className="absolute inset-0 z-10 flex items-center justify-center bg-background">
+                        <GgSpinner className="animate-spin size-8 lg:size-10 text-muted-foreground" />
+                    </div>
+
+                </motion.div>
+            )}
+
+            {error && (
+                <div className="absolute inset-0 z-10 flex flex-col gap-1 items-center justify-center text-xs lg:text-sm text-muted-foreground select-none bg-background">
+                    <MaterialSymbolsSignalCellularConnectedNoInternet0BarRounded className="size-6 lg:size-8 opacity-50" />
+                    <span className="font-medium">Sin conexión al backend de Python</span>
+                </div>
+            )}
+
             <div ref={containerRef} className="flex-1 size-full min-h-0 p-4 touch-none">
                 <svg ref={svgRef} width="100%" height="100%" className="overflow-visible" />
             </div>

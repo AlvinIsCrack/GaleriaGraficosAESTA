@@ -21,7 +21,7 @@ export default function GaugeRiesgo() {
             (remaining) => setTimeLeft(remaining)
         );
         timerRef.current.start();
-        return () => timerRef.current?.pause();
+        return () => timerRef.current?.destroy();
     }, []);
 
     useEffect(() => {
@@ -50,7 +50,7 @@ export default function GaugeRiesgo() {
             .join(
                 enter => enter
                     .append("text")
-                    .attr("class", "region-label -translate-y-4 text-xs lg:text-sm font-semibold fill-foreground uppercase tracking-tight")
+                    .attr("class", "region-label -translate-y-4 text-xs lg:text-sm font-bold fill-foreground uppercase tracking-tight")
                     .attr("text-anchor", "middle")
                     .attr("transform", "translate(0, 10)")
                     .style("opacity", 0)
@@ -82,9 +82,7 @@ export default function GaugeRiesgo() {
             .join("path")
             .attr("class", "base-arc")
             .attr("d", arcGenerator({ startAngle: -Math.PI / 2, endAngle: Math.PI / 2 }) as string)
-            .attr("fill", "transparent")
-            .attr("stroke", "var(--color-border)")
-            .attr("stroke-width", 2);
+            .attr("fill", "var(--color-muted)");
 
         const metricsData = Object.entries(regionActual.metricas).map(([label, metrica], i) => ({
             label,
@@ -92,6 +90,7 @@ export default function GaugeRiesgo() {
             i,
             regionId: regionActual.id
         }));
+
         chartGroup.selectAll<SVGGElement, any>(".metric-group")
             .data(metricsData, d => `${d.regionId}-${d.label}`)
             .join(
@@ -102,7 +101,7 @@ export default function GaugeRiesgo() {
                         .attr("transform", "rotate(-60)");
 
                     groupEnter.transition()
-                        .delay(300)
+                        .delay(400)
                         .duration(600)
                         .ease(d3.easeBackOut)
                         .style("opacity", 1)
@@ -128,16 +127,15 @@ export default function GaugeRiesgo() {
                 const endPct = (i + 1) * 33.33;
                 const midAngleDeg = ((angleScale(startPct) + angleScale(endPct)) / 2) * (180 / Math.PI);
 
-                // Arco principal
+                // Sección arqueada principal
                 group.selectAll(".slice-path").data([metrica])
                     .join("path")
                     .attr("class", "slice-path")
                     .attr("d", arcGenerator({
                         startAngle: angleScale(startPct),
                         endAngle: angleScale(endPct)
-                    }) as string)
-                    .attr("fill", m => m.peligro ? "var(--color-red-600)" : "var(--color-muted-foreground)")
-                    .attr("fill-opacity", 0.25);
+                    } as any) as string)
+                    .attr("fill", m => m.peligro ? "var(--color-red-950)" : "var(--color-neutral-700)");
 
                 // Path invisible para el texto curvo...
                 const textPathId = `text-path-${regionId}-${i}`;
@@ -150,7 +148,7 @@ export default function GaugeRiesgo() {
                     .attr("d", labelArcGenerator({
                         startAngle: angleScale(startPct),
                         endAngle: angleScale(endPct)
-                    }) as string)
+                    } as any) as string)
                     .attr("fill", "none");
 
                 // Label Curvo
@@ -177,9 +175,10 @@ export default function GaugeRiesgo() {
                     .attr("transform", `rotate(${midAngleDeg}) translate(0, -${valueRadius})`)
                     .attr("fill", m => m.peligro ? "var(--color-red-500)" : "var(--color-muted-foreground)");
 
+                // Unidad
                 vTxt.text(null);
                 vTxt.append("tspan").text(metrica.valor);
-                vTxt.append("tspan").attr("class", "text-xs lg:text-sm fill-white tracking-tight font-normal opacity-40").attr("dx", 4).text(metrica.unidad);
+                vTxt.append("tspan").attr("class", "text-xs lg:text-sm fill-white tracking-tight font-normal! opacity-40 mix-blend-plus-lighter").attr("dx", 4).text(metrica.unidad);
             });
     }, [dimensions, indexRegion]);
 
@@ -207,14 +206,15 @@ export default function GaugeRiesgo() {
             .join("path")
             .attr("class", "timer-progress-arc")
             .attr("d", progressArc as any)
-            .attr("fill", "var(--color-accent)");
+            .attr("fill", "var(--color-muted-foreground)");
 
     }, [timeLeft, dimensions]);
 
     return (
-        <div ref={containerRef} className="size-full"
+        <div ref={containerRef} className="size-full min-h-50 pt-4"
             onMouseEnter={() => timerRef.current?.pause()}
-            onMouseLeave={() => timerRef.current?.start()}>
+            onMouseLeave={() => timerRef.current?.start()}
+        >
             <svg ref={svgRef} width="100%" height="100%" />
         </div>
     );

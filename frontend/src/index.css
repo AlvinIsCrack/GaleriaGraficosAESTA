@@ -79,7 +79,7 @@
 
 /* Configuraciones de colores y ajustes pequeños de "base" para Tailwind, así suelo yo estilizar mis proyectos o tareas de universidad */
 * {
-    @apply border-border outline-ring/50 select-none transition-colors;
+    @apply border-border outline-ring/50 select-none;
 }
 
 @layer base {

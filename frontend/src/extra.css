@@ -1,20 +1,33 @@
 @reference "tailwindcss";
 
+/* Constantes para permitir personalización inline avanzada en los componentes de React */
 :root {
     --repeated-bg-size: 40px;
     --repeated-bg-offset-x: 8px;
 }
 
+/* Animación de cuadrícula,
+siempre y cuando no haya motion-reduce */
 .bg-grid {
-    background-image: linear-gradient(to right, var(--color-muted) 2px, transparent 2px), linear-gradient(to bottom, var(--color-muted) 2px, transparent 2px);
+    background-image: linear-gradient(to right, var(--color-muted) 2px, transparent 2px),
+        linear-gradient(to bottom, var(--color-muted) 2px, transparent 2px);
     background-size: var(--repeated-bg-size) var(--repeated-bg-size);
     animation: reppeatedPatternMoveDiagonal 5s linear infinite;
+
+    @media (prefers-reduced-motion: reduce) {
+        animation: none;
+    }
 }
 
+/* Animación de puntos, siempre y cuando no haya motion-reduce */
 .bg-polka-dots {
     background-image: radial-gradient(var(--color-muted) 2px, transparent 2px);
     background-size: var(--repeated-bg-size) var(--repeated-bg-size);
     animation: reppeatedPatternMoveDiagonal 5s linear infinite;
+
+    @media (prefers-reduced-motion: reduce) {
+        animation: none;
+    }
 }
 
 @keyframes reppeatedPatternMoveDiagonal {
@@ -27,6 +40,7 @@
     }
 }
 
+/* Se reusa en varios componentes con tooltip simples */
 .d3-tooltip {
     @apply absolute invisible bg-black/80 text-white px-2.5 py-1.25 rounded text-[12px] pointer-events-none z-10 whitespace-nowrap;
 }

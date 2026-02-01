@@ -1,10 +1,15 @@
 @reference "tailwindcss";
 
+/*
+    Se uso parcialmente ".css" con "postcss" para aprovechar tailwind, simplificar un poco el código, y también demostrar
+    conocimiento respecto a mezcla de tailwind inline en las clases de los componentes de React, en archivos css,
+    y también con el uso de modulos auxiliares como 'tailwind-variants'.
+*/
 #main-header {
     background-color: var(--color-card);
     color: var(--color-card-foreground);
 
-    @apply px-6 md:px-8 py-2.5 border-b relative flex flex-row gap-4;
+    @apply px-4 md:px-6 py-2.5 border-b relative flex flex-row gap-4;
 
     #header-logo {
         @apply hidden md:block place-self-center [&_svg]:scale-150 [&_svg]:size-full size-10 text-orange-400;
@@ -21,23 +26,23 @@
     }
 
     #header-info {
-        @apply right-0 text-right my-auto lg:py-2 leading-tight text-xs lg:text-sm bottom-0 mt-auto ml-auto;
+        @apply right-0 text-right h-full my-auto lg:py-2 leading-tight text-[10px] md:text-xs lg:text-sm pt-1 ml-auto min-[1920px]:text-base;
     }
 }
 
 #main-dashboard {
-    @apply px-8 pt-2 lg:pt-4 space-y-2 relative size-full mx-auto min-h-0 lg:max-h-[calc(95vh-5rem)];
+    @apply px-4 lg:px-8 pt-2 lg:pt-4 space-y-2 relative size-full mx-auto min-h-0 lg:max-h-[calc(95vh-5rem)] max-w-[1920px];
 
     #dashboard-content {
-        @apply grid grid-cols-1 md:grid-cols-2 gap-0.5;
-        @apply lg:grid-cols-3 lg:grid-flow-col-dense lg:gap-1 lg:xl:gap-2 lg:size-full;
+        @apply grid grid-cols-1 md:grid-cols-2;
+        @apply lg:grid-cols-3 lg:grid-flow-col-dense gap-1 lg:xl:gap-2 lg:size-full;
 
         >div {
-            @apply rounded-lg border-2 size-full flex-1 relative min-w-0 min-h-40 md:min-h-0;
+            @apply @container rounded-lg border-2 size-full flex-1 relative min-w-0 min-h-40 md:min-h-0;
 
             h2 {
                 color: var(--color-muted-foreground);
-                @apply text-sm md:text-base lg:text-lg uppercase font-bold absolute z-10 top-1 md:top-1.5 lg:top-2 left-2.5 tracking-tighter lg:tracking-tight;
+                @apply text-sm md:text-base @lg:text-lg uppercase font-bold absolute z-20 top-1 @md:top-1.5 @lg:top-2 left-2.5 tracking-tighter @lg:tracking-tight;
             }
         }
     }

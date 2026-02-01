@@ -1,3 +1,8 @@
+/**
+ * Funciones auxiliares específicas para el análisis, centradas en
+ * cálculos matemáticos y normalización de nombres para reportes.
+ */
+
 import { getNombreRegión } from "../core/utils";
 
 export const calcularAreaCirculo = (radioKm: number) => Math.PI * (radioKm ** 2);

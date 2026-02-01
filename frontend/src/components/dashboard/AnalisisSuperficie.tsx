@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
-import ProgressText from "../ui/ProgressText";
+import MotionBlurDigit from "../ui/MotionBlurDigit";
 import { useEffect, useRef, useState } from "react";
 import { Timer } from "../../helpers/timer";
 import { ANALISIS_DATA } from "../../logic/analisis";
@@ -9,14 +9,14 @@ import { tv } from "tailwind-variants";
 const analisisStyles = tv({
     slots: {
         container: "bottom-0 mt-auto relative",
-        heading: "text-7xl lg:text-9xl -z-10 -ml-1 leading-none font-black tracking-tight",
-        sub: "text-muted-foreground -mt-1 z-10 relative text-xs lg:text-sm uppercase leading-none",
+        heading: "text-6xl @md:text-7xl @lg:text-8xl -z-10 -ml-1 leading-none font-black tracking-tight",
+        sub: "text-muted-foreground -mt-1 z-10 relative text-xs @lg:text-sm uppercase leading-none",
     },
     variants: {
         color: {
             orange: { heading: "text-orange-600", sub: "[&>span]:text-orange-500" },
             rose: { heading: "text-rose-600", sub: "[&>span]:text-rose-500" },
-            emerald: { heading: "text-emerald-600 md:[&.analisis-superficie-heading]:-translate-y-2 lg:md:[&.analisis-superficie-heading]:-translate-y-4", sub: "[&>span]:text-emerald-500" },
+            emerald: { heading: "text-emerald-600 md:[&.analisis-superficie-heading]:-translate-y-2 @lg:md:[&.analisis-superficie-heading]:-translate-y-4", sub: "[&>span]:text-emerald-500" },
         },
     },
 });
@@ -33,7 +33,7 @@ export default function AnalisisSuperficie() {
 
     const renderHectareas = () => (
         <div className={container()}>
-            <ProgressText
+            <MotionBlurDigit
                 value={ANALISIS_DATA.daños.hectáreas}
                 from={0}
                 className={heading({ color: 'orange' })}
@@ -50,7 +50,7 @@ export default function AnalisisSuperficie() {
 
     const renderUrbano = () => (
         <div className={container()}>
-            <ProgressText
+            <MotionBlurDigit
                 value={ANALISIS_DATA.amenazas.población}
                 from={0}
                 className={heading({ color: 'rose' })}
@@ -65,7 +65,7 @@ export default function AnalisisSuperficie() {
 
     const renderForestal = () => (
         <div className={container()}>
-            <ProgressText
+            <MotionBlurDigit
                 value={ANALISIS_DATA.amenazas.toneladasBiomasa}
                 from={0}
                 className={heading({ color: 'emerald', className: 'analisis-superficie-heading' })}
@@ -92,7 +92,7 @@ export default function AnalisisSuperficie() {
         );
 
         timerRef.current.start();
-        return () => timerRef.current?.pause();
+        return () => timerRef.current?.destroy();
     }, [displays.length]);
 
     useEffect(() => {
@@ -100,13 +100,16 @@ export default function AnalisisSuperficie() {
     }, [index]);
 
     const offset = (timeLeft / INTERVALO_PESTAÑAS_MS) * CIRCUNFERENCIA;
-    return <div className='relative size-full overflow-hidden'
+    return <div className='relative size-full overflow-hidden @container'
         onMouseEnter={() => timerRef.current?.pause()}
-        onMouseLeave={() => timerRef.current?.start()}>
+        onMouseLeave={() => timerRef.current?.start()}
+    >
+        {/** Fondo */}
         <div
             className="absolute inset-0 -z-10 pointer-events-none bg-grid"
         />
 
+        {/** Display principal: qué pantalla se muestra ahora */}
         <AnimatePresence mode="wait">
             <motion.div
                 key={index}
@@ -120,14 +123,14 @@ export default function AnalisisSuperficie() {
             </motion.div>
         </AnimatePresence>
 
-        <div className="absolute right-0 top-0 m-2 not-lg:scale-80 origin-top-right lg:m-5 flex items-center gap-2">
-            <div className="flex flex-col items-end">
-                <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">PESTAÑA</span>
-                <span className="text-sm font-black tracking-tighter tabular-nums">{index + 1} / {displays.length}</span>
-            </div>
-
+        {/** Indicador simple inline de progreso */}
+        <div className="absolute right-0 top-0 m-2 scale-80 lg:scale-90 xl:scale-100 origin-top-right lg:m-4 xl:m-6 flex items-center gap-2">
             <div className="relative size-12">
-                <svg className="size-full overflow-visible -rotate-90">
+                <div className="absolute z-10 top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 w-full text-[10px] lg:text-xs font-black text-center -tracking-widest">
+                    {index + 1} / {displays.length}
+                </div>
+
+                <svg className="size-full overflow-visible -rotate-90 drop-shadow-md/50">
                     <circle
                         cx="24" cy="24" r="20"
                         stroke="currentColor"
@@ -135,6 +138,8 @@ export default function AnalisisSuperficie() {
                         fill="transparent"
                         className="text-muted"
                     />
+
+                    {/** Animación del circulo rellenándose */}
                     <motion.circle
                         key={index}
                         cx="24" cy="24" r="20"

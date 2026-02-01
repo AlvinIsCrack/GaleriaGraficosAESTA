@@ -1,3 +1,8 @@
+/**
+ * Módulo principal de análisis que consolida todos los datos calculados
+ * (daños, amenazas, clima y recursos) en un único objeto de exportación.
+ */
+
 import { MOCK_FOCOS } from "../puntos/focos";
 import { METROS_POR_HECTAREA } from "../core/constantes";
 import { kmTotales, obtenerPoblacionAfectada, obtenerToneladasBiomasa } from "./daños";

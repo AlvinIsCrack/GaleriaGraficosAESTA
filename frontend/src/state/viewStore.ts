@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-/** Para simple interactividad */
+/** Para simple interactividad con variables 'globales', en un singleton/store */
 interface ViewState {
     focusedRegion: string | null;
     setFocusedRegion: (region: string | null) => void;

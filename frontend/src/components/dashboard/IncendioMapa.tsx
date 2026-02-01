@@ -5,7 +5,7 @@ import useViewStore from '../../state/viewStore';
 import { MOCK_FOCOS } from '../../logic/puntos/focos';
 import { isIncendioActive } from '../../logic/core/utils';
 import { CHILE_GEO_DATA } from '../../logic/geodata/chile';
-import ProgressText from '../ui/ProgressText';
+import MotionBlurDigit from '../ui/MotionBlurDigit';
 
 export default function IncendioMapa() {
     const svgRef = useRef<SVGSVGElement>(null);
@@ -57,16 +57,27 @@ export default function IncendioMapa() {
         const mapGroup = svg.append("g").attr("class", "map-layer");
 
         regionsGroupRef.current = mapGroup.selectAll("path")
-            .data(CHILE_GEO_DATA.features)
-            .enter()
-            .append("path")
+            .data(
+                CHILE_GEO_DATA.features.map(region => ({
+                    ...region,
+                    count: MOCK_FOCOS.filter(foco => isIncendioActive(foco) && d3.geoContains(region, [foco.lng, foco.lat])).length
+                }))
+            )
+            .join(
+                enter => enter.append("path")
+                    .attr("opacity", 0)
+                    .call(enter => enter.transition()
+                        .duration(200)
+                        .attr("opacity", 1)),
+                update => update,
+                exit => exit.remove()
+            )
             .attr("d", pathGenerator as any)
-            .attr("stroke", "var(--color-border)")
-            .attr("fill", (d: any) => {
-                const count = MOCK_FOCOS.filter(f => isIncendioActive(f) && d3.geoContains(d, [f.lng, f.lat])).length;
-
-                if (count >= 3) return "var(--color-orange-900)";
-                if (count > 0) return "var(--color-orange-950)";
+            .attr("stroke", d => d.count ? "var(--color-orange-700)" : "var(--color-border)")
+            .attr("class", "starting:grayscale-100 duration-200 grayscale-0 transition-all")
+            .attr("fill", (d) => {
+                if (d.count >= 3) return "var(--color-orange-900)";
+                if (d.count > 0) return "var(--color-orange-950)";
                 return "var(--color-card)";
             })
             .attr("stroke-width", 2)
@@ -209,32 +220,32 @@ export default function IncendioMapa() {
         if (!regionsGroupRef.current) return;
 
         regionsGroupRef.current
-            .transition()
-            .duration(200)
-            .attr("stroke", (d: any) => d.id === focusedRegion ? "var(--color-foreground)" : "var(--color-border)")
-            .attr("filter", (d: any) => focusedRegion === null || d.id === focusedRegion ? "" : "brightness(0.5)");
+            .style("filter", (d: any) => focusedRegion === null ? "" : d.id === focusedRegion ? "brightness(1.5)" : "brightness(0.6)");
 
     }, [focusedRegion]);
 
     const activeCount = MOCK_FOCOS.filter(f => isIncendioActive(f)).length;
     return (
         <div ref={containerRef} className="size-full overflow-hidden flex relative items-center justify-center">
-            <div style={{ '--repeated-bg-size': '12px', '--color-muted': '#fff1' } as any} className='absolute inset-0 pointer-events-none select-none bg-polka-dots animate-none!'></div>
+            <div
+                style={{ '--repeated-bg-size': '12px', '--color-muted': '#fff1' } as any}
+                className='absolute inset-0 pointer-events-none select-none bg-polka-dots animate-none!' />
+
             <svg ref={svgRef} width="100%" height="100%" className='block relative' />
-            <aside className='absolute right-6 bottom-6 pointer-events-none'>
-                <div className='flex flex-col items-end'>
-                    <ProgressText
+            <aside className='absolute right-6 bottom-6 pointer-events-none lg:space-y-1'>
+                <div className='text-right'>
+                    <MotionBlurDigit
                         value={activeCount}
                         from={0}
                         formatter={(n) => Math.round(n).toString()}
-                        className='text-amber-500 text-8xl font-black tracking-tighter leading-[0.75] tabular-nums'
+                        className='text-amber-500 text-8xl font-black tracking-tighter leading-none -mb-2 tabular-nums'
                     />
-                    <p className='text-sm text-amber-500 opacity-60 font-medium uppercase'>
+                    <div className='text-sm text-amber-500 font-bold uppercase'>
                         Focos Activos
-                    </p>
+                    </div>
                 </div>
                 <p className='text-sm text-muted-foreground font-bold uppercase'>
-                    <span className='text-foreground text-base mr-0.5'>{MOCK_FOCOS.length}</span> Focos en total
+                    <span className='text-foreground text-base xl:text-lg mr-0.5'>{MOCK_FOCOS.length}</span> Focos en total
                 </p>
             </aside>
         </div>

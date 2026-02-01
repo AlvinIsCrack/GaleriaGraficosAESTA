@@ -1,3 +1,8 @@
+/**
+ * Motor de simulación climática que genera datos realistas de temperatura,
+ * humedad y viento variando según la hora del día y eventos aleatorios.
+ */
+
 const horaActual = new Date().getHours();
 export const obtenerTemperaturaSimulada = () => {
     const esHoraPicoCalor = horaActual > 11 && horaActual < 19;

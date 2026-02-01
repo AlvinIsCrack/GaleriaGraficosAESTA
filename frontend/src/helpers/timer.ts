@@ -1,3 +1,7 @@
+/**
+ * Clase que gestiona un temporizador con soporte para pausa, reanudación y tick de actualización.
+ * Permite ejecutar un callback al finalizar el tiempo y opcionalmente notificar el tiempo restante.
+ */
 export class Timer {
     private timerId: number | null = null;
     private startTime: number | null = null;
@@ -17,7 +21,20 @@ export class Timer {
         this.duration = duration;
         this.onTick = onTick;
         this.remaining = duration;
+
+        document.addEventListener("visibilitychange", this.handleVisibilityChange);
     }
+
+    /** Para manejar cuando no se esté en focus a la pestaña del navegador */
+    private handleVisibilityChange = () => {
+        if (document.hidden) {
+            this.pause();
+        } else {
+            if (this.remaining > 0 && this.remaining < this.duration) {
+                this.start();
+            }
+        }
+    };
 
     private tick = () => {
         if (this.startTime && this.onTick) {
@@ -56,6 +73,11 @@ export class Timer {
         this.remaining = this.duration;
         // Notificamos el reset a la UI
         if (this.onTick) this.onTick(this.remaining);
+    };
+
+    destroy = () => {
+        this.pause();
+        document.removeEventListener("visibilitychange", this.handleVisibilityChange);
     };
 
     get progress() {

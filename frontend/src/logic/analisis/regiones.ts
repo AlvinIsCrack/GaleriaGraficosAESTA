@@ -1,3 +1,8 @@
+/**
+ * Lógica para determinar el impacto por región geográfica y calcular
+ * métricas climáticas localizadas basadas en la ubicación de los focos.
+ */
+
 import * as d3 from 'd3';
 import { normalizarNombreRegion } from "./helpers";
 import { obtenerHumedadSimulada, obtenerTemperaturaSimulada, obtenerVientoSimulado } from "./simulacion";

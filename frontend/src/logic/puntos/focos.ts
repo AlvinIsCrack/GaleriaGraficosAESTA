@@ -1,3 +1,8 @@
+/**
+ * Punto de entrada para los datos de incendios. Contiene el dataset base
+ * y la lógica de generación de datos simulados (mock) para la visualización.
+ */
+
 import type { PuntoIncendio } from './types';
 
 /** Pequeño dataset generado por IA */
@@ -24,7 +29,6 @@ const BASE_FOCOS_INCENDIO = [
     { id: '20', lat: -34.7211, lng: -71.1522, intensidad: 0.3, estado: 'extinguido', radioKm: 0.7, nombre: 'Lolol Forestal' },
     { id: '21', lat: -32.4542, lng: -71.2311, intensidad: 0.7, estado: 'confirmado', radioKm: 1.4, nombre: 'Cabildo - El Quemado' },
     { id: '22', lat: -32.9811, lng: -71.3244, intensidad: 0.8, estado: 'detectado', radioKm: 2.0, nombre: 'Villa Alemana - Peñablanca' },
-    { id: '23', lat: -33.2100, lng: -71.7200, intensidad: 0.4, estado: 'bajo_control', radioKm: 0.6, nombre: 'Casablanca - Lo Vásquez' },
     { id: '24', lat: -33.3544, lng: -71.6522, intensidad: 0.6, estado: 'confirmado', radioKm: 1.3, nombre: 'Algarrobo Norte' },
     { id: '25', lat: -33.4122, lng: -70.9233, intensidad: 0.3, estado: 'extinguido', radioKm: 0.5, nombre: 'Curacaví - Cuesta Zapata' },
     { id: '26', lat: -33.7211, lng: -70.7544, intensidad: 0.5, estado: 'detectado', radioKm: 0.8, nombre: 'Buin - Alto Jahuel' },
@@ -81,19 +85,35 @@ const BASE_FOCOS_INCENDIO = [
     { id: '78', lat: -32.0233, lng: -70.6233, intensidad: 0.9, estado: 'confirmado', radioKm: 2.4, nombre: 'Illapel - Reserva Las Chinchillas' },
     { id: '79', lat: -33.9544, lng: -71.8233, intensidad: 0.7, estado: 'detectado', radioKm: 1.3, nombre: 'Navidad - La Boca' },
     { id: '80', lat: -35.2133, lng: -71.5233, intensidad: 0.5, estado: 'bajo_control', radioKm: 0.9, nombre: 'Río Claro' },
-    { id: '81', lat: -33.0122, lng: -71.6122, intensidad: 0.9, estado: 'confirmado', radioKm: 1.5, nombre: 'Valparaíso - Cerros' },
     { id: '82', lat: -33.4500, lng: -70.5500, intensidad: 0.8, estado: 'detectado', radioKm: 1.1, nombre: 'La Reina - Precordillera' },
     { id: '83', lat: -34.3411, lng: -71.2233, intensidad: 0.7, estado: 'confirmado', radioKm: 1.4, nombre: 'Pumanque Sector Centro' },
     { id: '84', lat: -36.7211, lng: -72.6544, intensidad: 0.6, estado: 'bajo_control', radioKm: 0.9, nombre: 'Florida - Cruce Concepción' },
     { id: '85', lat: -37.8922, lng: -72.4133, intensidad: 0.9, estado: 'confirmado', radioKm: 2.3, nombre: 'Traiguén Forestal' }
 ];
 
-/** Genera datos realistas pero falsos, iterando para encontrar samples válidos y útiles para motivos de visualización. Esto ignora la parte del gráfico que va a hacer uso de la API del backend */
-function generateMockData(): PuntoIncendio[] {
+/**
+ * Genera datos realistas pero falsos, iterando para encontrar samples válidos y útiles para motivos de visualización. Esto ignora la parte del gráfico que va a hacer uso de la API del backend
+ *
+ * @param {number} [activityLevel=30] Nivel de actividad para aumentar la ocurrencia. Esto intenta 'sincronizarse' con el backend, para no añadir más fetch
+ * por motivos del desafío y simplicidad.
+ * @returns {PuntoIncendio[]} Los puntos de incendio resultantes
+ */
+function generateMockData(activityLevel: number = 30): PuntoIncendio[] {
+    // +Actividad, -Umbral
+    const threshold = Math.max(0.70, 1 - (activityLevel / 500));
+
     do {
-        const focos = BASE_FOCOS_INCENDIO.map(p => ({ ...p, radioKm: p.radioKm * (1 + (Math.random() - .2) * .8) })).filter(() => Math.random() > 0.96) as PuntoIncendio[];
-        if (focos.length < 3) continue;
-        return focos;
+        const focos = BASE_FOCOS_INCENDIO
+            .map(p => ({
+                ...p,
+                // Se aplican variaciones
+                intensidad: Math.min(1, p.intensidad * (0.8 + Math.random() * 0.4)),
+                radioKm: p.radioKm * (0.8 + Math.random() * 0.5)
+            }))
+            .filter(() => Math.random() > threshold) as PuntoIncendio[];
+
+        if (focos.length >= 2) return focos;
     } while (true);
 }
+
 export const MOCK_FOCOS = generateMockData();

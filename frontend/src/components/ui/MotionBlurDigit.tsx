@@ -5,14 +5,14 @@ interface ProgressTextProps {
     value: number;
     from?: number;
     duration?: number;
-    formatter?: (n: number) => string;
+    formatter?: (n: number) => string; /** Para usar con Intl.number, u otras cosas... */
     className?: string;
 }
 
 /**
  * Componente personalizado para simple estética, que anima desde un inicio en ratio (multiplicación) del valor real, hasta el propio valor, siguiendo una función de suavizado, por un tiempo determinado. Para garantizar granularidad y escalabilidad, se tiene también una propiedad 'formatter' que procesa el texto antes de renderizarlo.
  */
-export default function ProgressText({
+export default function MotionBlurDigit({
     value,
     from = 0,
     duration = 0.8,
