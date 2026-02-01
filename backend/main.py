@@ -11,16 +11,11 @@ app = FastAPI()
 # (https://fastapi.tiangolo.com/tutorial/cors/#use-corsmiddleware)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        # Se tienen las configuraciones para
-        # Vite, en entorno de desarrollo para el desafío
-        "http://127.0.0.1",
-        "http://127.0.0.1:5173",
-        "http://localhost",
-        "http://localhost:5173",
-    ],
+    # Por motivos de desarrollo y desafío...
+    allow_origins=["*"],
     allow_credentials=True,
-    allow_methods=["GET"]
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 

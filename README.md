@@ -43,6 +43,8 @@ El endpoint principal genera datos históricos de focos de incendios para dotar 
 
 1. Navegar al directorio `/backend`.
 2. (Recomendado) Configurar un entorno virtual: `python -m venv venv`.
+   - **Windows**: `.\venv\Scripts\activate`
+   - **Mac/Linux**: `source venv/bin/activate`
 3. Instalar dependencias: `pip install -r requirements.txt`.
 4. Ejecutar el servicio: `python main.py` o `fastapi dev main.py`.
 
