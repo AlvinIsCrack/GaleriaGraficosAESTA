@@ -9,14 +9,14 @@ import { tv } from "tailwind-variants";
 const analisisStyles = tv({
     slots: {
         container: "bottom-0 mt-auto relative",
-        heading: "text-6xl @md:text-7xl @lg:text-8xl -z-10 -ml-1 leading-none font-black tracking-tight",
+        heading: "text-6xl @md:text-7xl @lg:text-8xl @xl:text-9xl text-wrap whitespace-pre-wrap -z-10 -ml-1 leading-none font-black tracking-tight",
         sub: "text-muted-foreground -mt-1 z-10 relative text-xs @lg:text-sm uppercase leading-none",
     },
     variants: {
         color: {
             orange: { heading: "text-orange-600", sub: "[&>span]:text-orange-500" },
             rose: { heading: "text-rose-600", sub: "[&>span]:text-rose-500" },
-            emerald: { heading: "text-emerald-600 md:[&.analisis-superficie-heading]:-translate-y-2 @lg:md:[&.analisis-superficie-heading]:-translate-y-4", sub: "[&>span]:text-emerald-500" },
+            emerald: { heading: "text-emerald-600 tracking-tighter md:[&.analisis-superficie-heading]:-translate-y-2 @lg:md:[&.analisis-superficie-heading]:-translate-y-4", sub: "[&>span]:text-emerald-500" },
         },
     },
 });

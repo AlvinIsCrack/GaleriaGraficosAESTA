@@ -10,10 +10,8 @@ Más allá de una implementación estándar, se han aplicado las tecnologías so
 El repositorio trasciende la funcionalidad de una galería de gráficos convencional al presentarse como un prototipo de **Dashboard de Control de Incidencias Ambientales**. La aplicación utiliza una narrativa de prevención y monitoreo de incendios forestales para demostrar cómo datos estáticos, simulados y en tiempo real pueden converger en una interfaz profesional e interactiva. La cohesión visual se logra mediante una estricta paleta de colores, patrones de espaciado consistentes y una arquitectura de componentes atómicos que unifica la experiencia del usuario.
 
 ## Características de Ingeniería
-Tras el análisis del código fuente, se destacan los siguientes hitos técnicos:
-
 ### Backend: Simulación y Procesamiento de Datos
-El servidor en **FastAPI** implementa un motor de generación de datos que no se limita a valores aleatorios. Se ha programado:
+El servidor en **FastAPI** implementa un motor de generación de datos que no se limita a valores aleatorios. Se ha programado, aunque de manera básica:
 - **Lógica Estacional:** Los valores fluctúan según variables temporales (meses estivales vs. resto del año).
 - **Simulación de Eventos Críticos:** Algoritmos para representar "olas de calor" mediante picos estocásticos de intensidad variable.
 - **Pre-procesamiento en Servidor:** Cálculo de **Medias Móviles Centradas** (`avgValue`) para entregar datos procesados listos para su visualización, reduciendo la carga computacional en el cliente.

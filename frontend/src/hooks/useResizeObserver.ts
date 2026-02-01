@@ -1,7 +1,11 @@
 import { useState, useEffect, type RefObject } from 'react';
 
-/** Hook personalizado simple, con tal de agilizar el proceso de detectar cambios en las dimensiones del contenedor,
- *  útil para la consideración técnica de que debe ser responsive, y el re-draw por el cambio de tamaño.
+/**
+ * Hook personalizado para observar cambios en las dimensiones de un elemento del DOM.
+ * Es crítico para las visualizaciones con D3.js, ya que permite gatillar el re-renderizado
+ * y recalcular escalas y ejes para mantener la integridad del SVG en cualquier resolución.
+ * @param {RefObject<HTMLElement | null>} containerRef - Referencia al contenedor padre.
+ * @returns {{width: number, height: number}} Dimensiones actuales del contenedor.
  */
 export function useResizeObserver(containerRef: RefObject<HTMLElement | null>) {
     const [dimensions, setDimensions] = useState({ width: 0, height: 0 });

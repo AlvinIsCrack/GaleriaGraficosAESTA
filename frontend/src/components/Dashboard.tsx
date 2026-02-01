@@ -8,6 +8,10 @@ import RecursosDesplegados from "./dashboard/RecursosDesplegados";
 /**
  * Componente principal del Dashboard.
  * Orquesta la visualización de datos de incendios mediante una grilla de componentes especializados.
+ * * Cumple con los requisitos de diseño responsivo del desafío:
+ * - Mobile: 1 columna (default)
+ * - Tablet: 2 columnas (md:grid-cols-2)
+ * - Desktop: 3 columnas (lg:grid-cols-3)
  */
 export default function Dashboard() {
     return <>

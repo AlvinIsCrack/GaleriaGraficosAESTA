@@ -52,6 +52,12 @@ export default function HistorialFocos() {
         return () => controller.abort();
     }, []);
 
+    /**
+     * Efecto principal para el renderizado de la visualización con D3.js.
+     * Gestiona la creación de capas SVG, gradientes dinámicos, máscaras de recorte para 
+     * animaciones de entrada, y la lógica de interactividad (Tooltip y Focus line).
+     * Se sincroniza con el estado global y los cambios de dimensión del contenedor.
+     */
     useEffect(() => {
         if (loading || error || !svgRef.current || !dimensions.width || data.length === 0) return;
 
