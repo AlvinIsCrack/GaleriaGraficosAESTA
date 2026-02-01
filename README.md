@@ -1,4 +1,5 @@
 # Desafío Técnico: Galería de Gráficos Responsive - AESTA
+<img width="1865" height="988" alt="image" src="https://github.com/user-attachments/assets/b73f0596-de84-4ef9-952b-f0df1d0ffd2c" />
 
 ## Descripción
 Este repositorio contiene la solución al desafío técnico planteado por **AESTA** (*Asesorías Estratégicas Ambientales*). El proyecto consiste en una aplicación de arquitectura full-stack que integra un `backend` desarrollado en FastAPI y un `frontend` basado en React (Vite + TypeScript), diseñado para la visualización de datos de alta fidelidad y con un enfoque estrictamente responsivo.
