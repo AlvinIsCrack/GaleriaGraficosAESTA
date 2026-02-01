@@ -25,15 +25,15 @@ export default function HistorialFocos() {
 
     const hasAnimated = useRef(false);
 
-    useEffect(() => {
-        const controller = new AbortController();
+    // Para poder reutilizar y reintentar conxión (UX y debugging)
+    const fetchData = (signal?: AbortSignal) => {
         setLoading(true);
         setError(false);
 
         /** Se maneja el estado de completado, cargando y con error.
          * Para la conexión con cors, se envían credenciales.
          */
-        fetch(`http://127.0.0.1:8000/api/chart-data`, { signal: controller.signal, credentials: 'include' })
+        fetch(`http://127.0.0.1:8000/api/chart-data`, { signal, credentials: 'include' })
             .then(res => {
                 if (!res.ok) throw new Error("Error en la petición");
                 return res.json();
@@ -50,7 +50,12 @@ export default function HistorialFocos() {
                     setLoading(false);
                 }
             });
+    };
 
+    /** Al iniciar */
+    useEffect(() => {
+        const controller = new AbortController();
+        fetchData(controller.signal);
         return () => controller.abort();
     }, []);
 
@@ -221,11 +226,7 @@ export default function HistorialFocos() {
                 <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    transition={{
-                        duration: .2,
-                        delay: 0.2 // Delay para que no se muestre con 'parpadeo' con una conexión rápida
-                        // del backend con el frontend, más que nada por UX.
-                    }}
+                    transition={{ duration: .2 }}
                 >
                     <div className="absolute inset-0 z-10 flex items-center justify-center bg-background">
                         <GgSpinner className="animate-spin size-8 lg:size-10 text-muted-foreground" />
@@ -238,6 +239,12 @@ export default function HistorialFocos() {
                 <div className="absolute inset-0 z-10 flex flex-col gap-1 items-center justify-center text-xs lg:text-sm text-muted-foreground select-none bg-background">
                     <MaterialSymbolsSignalCellularConnectedNoInternet0BarRounded className="size-6 lg:size-8 opacity-50" />
                     <span className="font-medium">Sin conexión al backend de Python</span>
+                    <p
+                        onClick={() => fetchData()}
+                        className="starting:-translate-y-2 ease-out translate-y-0 transition-[translate] duration-400 cursor-pointer underline text-foreground hover:text-foreground/60"
+                    >
+                        Reintentar
+                    </p>
                 </div>
             )}
 
