@@ -1,5 +1,6 @@
 # Desafío Técnico: Galería de Gráficos Responsive - AESTA
 <img width="1865" height="988" alt="image" src="https://github.com/user-attachments/assets/b73f0596-de84-4ef9-952b-f0df1d0ffd2c" />
+
 > Por Lucas Enríquez Rivera, estudiante de 3er año de Ing. Civil Informática.
 
 ## Descripción
