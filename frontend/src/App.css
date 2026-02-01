@@ -31,11 +31,10 @@
 }
 
 #main-dashboard {
-    @apply px-4 lg:px-8 pt-2 lg:pt-4 space-y-2 relative size-full mx-auto min-h-0 lg:max-h-[calc(95vh-5rem)] max-w-[1920px];
+    @apply px-4 lg:px-8 pt-2 lg:pt-4 space-y-2 flex flex-col min-h-0 xl:min-h-[90vh] relative size-full mx-auto lg:max-h-[calc(95vh-5rem)] max-w-[1920px];
 
     #dashboard-content {
-        @apply grid grid-cols-1 md:grid-cols-2;
-        @apply lg:grid-cols-3 lg:grid-flow-col-dense gap-1 lg:xl:gap-2 lg:size-full;
+        @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 lg:grid-flow-col-dense gap-1 lg:xl:gap-2 lg:size-full grow;
 
         >div {
             @apply @container rounded-lg border-2 size-full flex-1 relative min-w-0 min-h-40 md:min-h-0;

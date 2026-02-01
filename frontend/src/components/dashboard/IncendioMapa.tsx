@@ -7,12 +7,22 @@ import { isIncendioActive } from '../../logic/core/utils';
 import { CHILE_GEO_DATA } from '../../logic/geodata/chile';
 import MotionBlurDigit from '../ui/MotionBlurDigit';
 
+/**
+ * Componente de Visualización Geoespacial.
+ * Renderiza un mapa interactivo de Chile utilizando D3.js y GeoJSON.
+ * * Características técnicas:
+ * - Proyección Mercator ajustada dinámicamente a los puntos de incidencia (MOCK_FOCOS).
+ * - Capas de visualización dinámicas: regiones, anillos de pulsación y marcas de control.
+ * - Sincronización con el estado global (Zustand) para efectos de resaltado.
+ */
 export default function IncendioMapa() {
     const svgRef = useRef<SVGSVGElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const dimensions = useResizeObserver(containerRef);
     const focusedRegion = useViewStore((state) => state.focusedRegion);
     const regionsGroupRef = useRef<d3.Selection<SVGPathElement, any, SVGGElement, any> | null>(null);
+
+    const hasAnimated = useRef(false);
 
     useEffect(() => {
         if (!svgRef.current || dimensions.width === 0) return;
@@ -25,9 +35,16 @@ export default function IncendioMapa() {
             .append("div")
             .attr("class", "d3-tooltip");
 
+        /**
+         * Lógica de Proyección Dinámica:
+         * Ajusta el centro y la escala del mapa basándose en la ubicación de los focos.
+         * Si hay múltiples focos, usa 'fitExtent' para encuadrar todos los puntos automáticamente.
+         */
         const projection = d3.geoMercator();
         if (MOCK_FOCOS.length > 0) {
-            const margin = 100;
+            /** Para responsividad: buena visibilización en dispositivos móviles */
+            const margin = width < 768 ? 50 : 100;
+
             if (MOCK_FOCOS.length === 1) {
                 projection
                     .center([MOCK_FOCOS[0].lng, MOCK_FOCOS[0].lat])
@@ -56,6 +73,10 @@ export default function IncendioMapa() {
         const pathGenerator = d3.geoPath().projection(projection);
         const mapGroup = svg.append("g").attr("class", "map-layer");
 
+        /**
+         * Renderizado de Regiones:
+         * Procesa el GeoJSON y calcula la densidad de incendios por región en tiempo de ejecución.
+         */
         regionsGroupRef.current = mapGroup.selectAll("path")
             .data(
                 CHILE_GEO_DATA.features.map(region => ({
@@ -63,18 +84,10 @@ export default function IncendioMapa() {
                     count: MOCK_FOCOS.filter(foco => isIncendioActive(foco) && d3.geoContains(region, [foco.lng, foco.lat])).length
                 }))
             )
-            .join(
-                enter => enter.append("path")
-                    .attr("opacity", 0)
-                    .call(enter => enter.transition()
-                        .duration(200)
-                        .attr("opacity", 1)),
-                update => update,
-                exit => exit.remove()
-            )
+            .join("path")
             .attr("d", pathGenerator as any)
             .attr("stroke", d => d.count ? "var(--color-orange-700)" : "var(--color-border)")
-            .attr("class", "starting:grayscale-100 duration-200 grayscale-0 transition-all")
+            .attr("class", "duration-200 transition-all")
             .attr("fill", (d) => {
                 if (d.count >= 3) return "var(--color-orange-900)";
                 if (d.count > 0) return "var(--color-orange-950)";
@@ -83,8 +96,18 @@ export default function IncendioMapa() {
             .attr("stroke-width", 2)
             .attr("vector-effect", "non-scaling-stroke");
 
+        /* Animación condicional, solo al montar */
+        if (!hasAnimated.current)
+            regionsGroupRef.current
+                .attr("opacity", 0)
+                .transition()
+                .duration(500)
+                .attr("opacity", 1);
+        else regionsGroupRef.current.attr("opacity", 1);
+
         const focosGroup = svg.append("g").attr("class", "MOCK_FOCOS-layer");
 
+        // Pulsos de focos activos (animaciones)
         focosGroup.selectAll(".pulse")
             .data(MOCK_FOCOS.filter(d => isIncendioActive(d)))
             .enter()
@@ -114,7 +137,8 @@ export default function IncendioMapa() {
                 repeat();
             });
 
-        focosGroup.selectAll(".foco-main")
+        // Focos principales (Active)
+        const focosMain = focosGroup.selectAll(".foco-main")
             .data(MOCK_FOCOS.filter(d => isIncendioActive(d)))
             .enter()
             .append("circle")
@@ -122,16 +146,23 @@ export default function IncendioMapa() {
             .attr("cx", d => projection([d.lng, d.lat])![0])
             .attr("cy", d => projection([d.lng, d.lat])![1])
             .attr("fill", d => isIncendioActive(d) ? "var(--color-amber-500)" : "var(--color-muted-foreground)")
-            .attr("stroke", "var(--color-border)")
-            .attr("r", 0)
-            .attr("opacity", 0)
-            .transition()
-            .duration(800)
-            .ease(d3.easeBackOut.overshoot(1.7))
+            .attr("stroke", "var(--color-border)");
+
+        if (!hasAnimated.current)
+            focosMain
+                .attr("r", 0)
+                .attr("opacity", 0)
+                .transition()
+                .duration(800)
+                .ease(d3.easeBackOut.overshoot(1.7))
+                .attr("r", d => Math.max(d.radioKm, 5))
+                .attr("opacity", d => 0.2 + (d.intensidad * 0.8));
+        else focosMain
             .attr("r", d => Math.max(d.radioKm, 5))
             .attr("opacity", d => 0.2 + (d.intensidad * 0.8));
 
-        focosGroup.selectAll(".foco-neutralized")
+        // Focos Neutralizados
+        const focosNeutral = focosGroup.selectAll(".foco-neutralized")
             .data(MOCK_FOCOS.filter(d => !isIncendioActive(d)))
             .enter()
             .append("g")
@@ -139,28 +170,37 @@ export default function IncendioMapa() {
             .attr("transform", d => {
                 const [x, y] = projection([d.lng, d.lat])!;
                 return `translate(${x}, ${y})`;
-            })
-            .each(function (d) {
-                const size = Math.max(d.radioKm, 5);
-                const group = d3.select(this);
+            });
 
-                group.append("line")
-                    .attr("x1", -size).attr("y1", -size)
-                    .attr("x2", size).attr("y2", size)
-                    .attr("stroke", "var(--color-muted-foreground)")
-                    .attr("stroke-width", 3)
-                    .attr("stroke-linecap", "round");
-                group.append("line")
-                    .attr("x1", size).attr("y1", -size)
-                    .attr("x2", -size).attr("y2", size)
-                    .attr("stroke", "var(--color-muted-foreground)")
-                    .attr("stroke-width", 3)
-                    .attr("stroke-linecap", "round");
-            })
-            .attr("opacity", 0)
-            .transition()
-            .duration(800)
-            .attr("opacity", 0.7);
+        // Dibujar las líneas X
+        focosNeutral.each(function (d) {
+            const size = Math.max(d.radioKm, 5);
+            const group = d3.select(this);
+
+            group.append("line")
+                .attr("x1", -size).attr("y1", -size)
+                .attr("x2", size).attr("y2", size)
+                .attr("stroke", "var(--color-muted-foreground)")
+                .attr("stroke-width", 3)
+                .attr("stroke-linecap", "round");
+            group.append("line")
+                .attr("x1", size).attr("y1", -size)
+                .attr("x2", -size).attr("y2", size)
+                .attr("stroke", "var(--color-muted-foreground)")
+                .attr("stroke-width", 3)
+                .attr("stroke-linecap", "round");
+        });
+
+        if (!hasAnimated.current)
+            focosNeutral
+                .attr("opacity", 0)
+                .transition()
+                .duration(800)
+                .attr("opacity", 0.7);
+        else
+            focosNeutral.attr("opacity", 0.7);
+
+        hasAnimated.current = true;
 
         const overlay = svg.append("rect")
             .attr("width", width)
@@ -216,6 +256,11 @@ export default function IncendioMapa() {
         return () => { tooltip.remove(); };
     }, [dimensions]);
 
+    /**
+     * Efecto de Reactividad al Estado Global:
+     * Aplica filtros de brillo y saturación a las regiones mediante manipulación directa de estilos
+     * de D3 para maximizar el rendimiento visual sin re-renderizar todo el SVG.
+     */
     useEffect(() => {
         if (!regionsGroupRef.current) return;
 
@@ -232,8 +277,8 @@ export default function IncendioMapa() {
                 className='absolute inset-0 pointer-events-none select-none bg-polka-dots animate-none!' />
 
             <svg ref={svgRef} width="100%" height="100%" className='block relative' />
-            <aside className='absolute right-6 bottom-6 pointer-events-none lg:space-y-1'>
-                <div className='text-right'>
+            <aside className='absolute right-6 bottom-6 hover:opacity-40 opacity-80 transition-all lg:space-y-1'>
+                <div className='text-right pointer-events-none'>
                     <MotionBlurDigit
                         value={activeCount}
                         from={0}
@@ -244,7 +289,7 @@ export default function IncendioMapa() {
                         Focos Activos
                     </div>
                 </div>
-                <p className='text-sm text-muted-foreground font-bold uppercase'>
+                <p className='text-sm text-muted-foreground font-bold uppercase pointer-events-none'>
                     <span className='text-foreground text-base xl:text-lg mr-0.5'>{MOCK_FOCOS.length}</span> Focos en total
                 </p>
             </aside>

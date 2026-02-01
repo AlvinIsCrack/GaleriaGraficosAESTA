@@ -81,7 +81,7 @@ export default function GaugeRiesgo() {
             .data([1])
             .join("path")
             .attr("class", "base-arc")
-            .attr("d", arcGenerator({ startAngle: -Math.PI / 2, endAngle: Math.PI / 2 }) as string)
+            .attr("d", arcGenerator({ startAngle: -Math.PI / 2, endAngle: Math.PI / 2 } as any) as string)
             .attr("fill", "var(--color-muted)");
 
         const metricsData = Object.entries(regionActual.metricas).map(([label, metrica], i) => ({
@@ -159,7 +159,7 @@ export default function GaugeRiesgo() {
                     .selectAll("textPath")
                     .data([label])
                     .join("textPath")
-                    .attr("class", "text-[10px] lg:text-xs font-bold uppercase")
+                    .attr("class", "text-[10px] @lg:text-xs font-bold uppercase")
                     .attr("fill", metrica.peligro ? "var(--color-red-500)" : "white")
                     .attr("xlink:href", `#${textPathId}`)
                     .attr("startOffset", "25%")
@@ -169,7 +169,7 @@ export default function GaugeRiesgo() {
                 // Valor central
                 const valueRadius = (radius + innerRadiusBase) / 2 - 10;
                 const vTxt = group.selectAll(".value-text").data([metrica]).join("text")
-                    .attr("class", "value-text text-xl md:text-3xl lg:text-5xl font-black tracking-tighter tabular-nums")
+                    .attr("class", "value-text text-xl @sm:text-3xl @md:text-5xl font-black tracking-tighter tabular-nums")
                     .attr("text-anchor", "middle")
                     .attr("dominant-baseline", "middle")
                     .attr("transform", `rotate(${midAngleDeg}) translate(0, -${valueRadius})`)
@@ -178,7 +178,7 @@ export default function GaugeRiesgo() {
                 // Unidad
                 vTxt.text(null);
                 vTxt.append("tspan").text(metrica.valor);
-                vTxt.append("tspan").attr("class", "text-xs lg:text-sm fill-white tracking-tight font-normal! opacity-40 mix-blend-plus-lighter").attr("dx", 4).text(metrica.unidad);
+                vTxt.append("tspan").attr("class", "text-xs @lg:text-sm fill-white tracking-tight font-normal! opacity-40 mix-blend-plus-lighter").attr("dx", 4).text(metrica.unidad);
             });
     }, [dimensions, indexRegion]);
 
@@ -211,7 +211,8 @@ export default function GaugeRiesgo() {
     }, [timeLeft, dimensions]);
 
     return (
-        <div ref={containerRef} className="size-full min-h-50 pt-4"
+        <div ref={containerRef}
+            className="size-full pt-4"
             onMouseEnter={() => timerRef.current?.pause()}
             onMouseLeave={() => timerRef.current?.start()}
         >

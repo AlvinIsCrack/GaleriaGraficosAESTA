@@ -10,6 +10,8 @@ export default function GráficoDistribución() {
     const dimensions = useResizeObserver(containerRef);
     const setFocusedRegion = useViewStore((state) => state.setFocusedRegion);
 
+    const hasAnimated = useRef(false);
+
     useEffect(() => {
         if (!svgRef.current || !dimensions.width) return;
 
@@ -53,9 +55,13 @@ export default function GráficoDistribución() {
             .attr("opacity", 0.8)
             .style("cursor", "pointer");
 
-        bars.transition()
-            .duration(800)
-            .attr("width", (d: any) => x(d.cantidad));
+        /** Evitar animación de entrada al ajustar tamaño */
+        if (!hasAnimated.current)
+            bars.attr("width", 0)
+                .transition()
+                .duration(800)
+                .attr("width", (d: any) => x(d.cantidad));
+        else bars.attr("width", (d: any) => x(d.cantidad));
 
         bars
             .on("touchstart", function (event, d: any) {
@@ -84,22 +90,31 @@ export default function GráficoDistribución() {
             .attr("dx", "2px")
             .select(".domain").remove();
 
-        g.selectAll(".label")
+        const labels = g.selectAll(".label")
             .data(ANALISIS_DATA.distribucion.topRegiones)
             .enter()
             .append("text")
             .attr("y", (d: any) => y(d.nombre)! + y.bandwidth() / 2 + 5)
-            .attr("x", 0)
             .attr("fill", "var(--color-foreground)")
             .attr("font-size", "14px")
             .attr("font-weight", "700")
-            .attr("opacity", 0)
-            .text((d: any) => d.cantidad)
-            .transition()
-            .duration(800)
-            .attr("x", (d: any) => x(d.cantidad) + 8)
-            .attr("opacity", (d: any) => d.cantidad ? 1 : 0);
+            .text((d: any) => d.cantidad);
 
+        /** Evitar animación al ajustar tamaño */
+        if (!hasAnimated.current)
+            labels
+                .attr("x", 0)
+                .attr("opacity", 0)
+                .transition()
+                .duration(800)
+                .attr("x", (d: any) => x(d.cantidad) + 8)
+                .attr("opacity", (d: any) => d.cantidad ? 1 : 0);
+        else
+            labels
+                .attr("x", (d: any) => x(d.cantidad) + 8)
+                .attr("opacity", (d: any) => d.cantidad ? 1 : 0);
+
+        hasAnimated.current = true;
     }, [dimensions]);
 
     return (

@@ -9,7 +9,7 @@ import { tv } from "tailwind-variants";
 const analisisStyles = tv({
     slots: {
         container: "bottom-0 mt-auto relative",
-        heading: "text-6xl @md:text-7xl @lg:text-8xl @xl:text-9xl text-wrap whitespace-pre-wrap -z-10 -ml-1 leading-none font-black tracking-tight",
+        heading: "text-6xl @md:text-7xl @lg:text-8xl lg:@xl:text-9xl text-wrap whitespace-pre-wrap -z-10 -ml-1 leading-none font-black tracking-tight",
         sub: "text-muted-foreground -mt-1 z-10 relative text-xs @lg:text-sm uppercase leading-none",
     },
     variants: {
@@ -100,7 +100,7 @@ export default function AnalisisSuperficie() {
     }, [index]);
 
     const offset = (timeLeft / INTERVALO_PESTAÑAS_MS) * CIRCUNFERENCIA;
-    return <div className='relative size-full overflow-hidden @container'
+    return <div className='relative size-full overflow-hidden'
         onMouseEnter={() => timerRef.current?.pause()}
         onMouseLeave={() => timerRef.current?.start()}
     >

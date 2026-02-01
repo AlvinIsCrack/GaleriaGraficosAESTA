@@ -24,7 +24,7 @@ export default function Dashboard() {
                 </div>
 
                 {/* Mapa que usa GeoJson y D3 para renderizar datos geoespaciales simulados */}
-                <div className="min-h-200! md:h-auto md:row-span-2 lg:row-span-3">
+                <div className="min-h-180! md:h-auto md:row-span-2 lg:row-span-3">
                     <h2>Mapa de Incendios</h2>
                     <IncendioMapa />
                 </div>
@@ -42,7 +42,7 @@ export default function Dashboard() {
                 </div>
 
                 {/* Gauge variable con animación que utiliza la misma información global de mock para alternar en vistas */}
-                <div>
+                <div className="min-h-50">
                     <h2>Factores de Riesgo</h2>
                     <GaugeRiesgo />
                 </div>
@@ -53,6 +53,10 @@ export default function Dashboard() {
                     <RecursosDesplegados />
                 </div>
             </div>
+
+            <footer className="w-full text-center text-[9px] md:text-[10px] lg:text-xs text-muted-foreground/80 py-1 xl:py-2">
+                Información simulada con fines de visualización exclusiva. No representa datos reales.
+            </footer>
         </section>
     </>
 }

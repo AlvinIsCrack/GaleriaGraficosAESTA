@@ -8,6 +8,8 @@ export default function RecursosDesplegados() {
     const containerRef = useRef<HTMLDivElement>(null);
     const dimensions = useResizeObserver(containerRef);
 
+    const hasAnimated = useRef(false);
+
     const data = ANALISIS_DATA.recursos;
     const totalRecursos = data.reduce((acc, d) => acc + d.cantidad, 0);
 
@@ -35,18 +37,24 @@ export default function RecursosDesplegados() {
             .cornerRadius(1);
 
         // Arcos
-        g.selectAll("path")
+        const paths = g.selectAll("path")
             .data(pie(data))
             .join("path")
-            .attr("class", d => `drop-shadow-sm ${d.data.class}`)
-            .attr("d", arc)
-            .transition().duration(1000).attrTween("d", function (d) {
-                const i = d3.interpolate(d.startAngle + 0.1, d.endAngle);
-                return function (t) {
-                    d.endAngle = i(t);
-                    return arc(d) || "";
-                };
-            });
+            .attr("class", d => `drop-shadow-sm ${d.data.class}`);
+
+        /** Solo animar al inicio */
+        if (!hasAnimated.current) {
+            paths.attr("d", arc)
+                .transition().duration(1000).attrTween("d", function (d) {
+                    const i = d3.interpolate(d.startAngle + 0.1, d.endAngle);
+                    return function (t) {
+                        d.endAngle = i(t);
+                        return arc(d) || "";
+                    };
+                });
+            hasAnimated.current = true;
+        } else
+            paths.attr("d", arc);
 
         // Texto centrl
         g.append("text")
@@ -76,13 +84,13 @@ export default function RecursosDesplegados() {
             </div>
 
             {/** Leyenda */}
-            <div className="absolute bottom-0 flex flex-row w-full gap-2 xl:gap-4 justify-between xl:justify-center pb-4 px-4 xl:px-10">
+            <div className="absolute bottom-0 flex flex-row w-full gap-2 @xl:gap-4 justify-between @xl:justify-center pb-4 px-4 @xl:px-10">
                 {data.map((item, i) => (
                     <div key={i} className="text-center space-y-1">
-                        <p className="text-xs md:text-sm lg:text-base font-black tracking-tight xl:tracking-wide tabular-nums text-foreground leading-none">
+                        <p className="text-xs @md:text-sm @lg:text-base font-black tracking-tight @xl:tracking-wide tabular-nums text-foreground leading-none">
                             {item.cantidad}
                         </p>
-                        <p className={`text-[8px] lg:text-[10px] xl:text-xs font-semibold lg:font-bold line-clamp-2 uppercase leading-none tracking-tight ${item.class}`}
+                        <p className={`text-[8px] @lg:text-[10px] @xl:text-xs font-semibold @lg:font-bold line-clamp-2 uppercase leading-none tracking-tight ${item.class}`}
                         >
                             {item.tipo}
                         </p>

@@ -23,6 +23,8 @@ export default function HistorialFocos() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(false);
 
+    const hasAnimated = useRef(false);
+
     useEffect(() => {
         const controller = new AbortController();
         setLoading(true);
@@ -82,7 +84,7 @@ export default function HistorialFocos() {
         const clipRect = defs.append("clipPath")
             .attr("id", clipId)
             .append("rect")
-            .attr("width", 0)
+            .attr("width", hasAnimated.current ? width : 0)
             .attr("height", height);
 
         const x = d3.scaleLinear().domain([0, data.length - 1]).range([0, chartWidth]);
@@ -204,7 +206,11 @@ export default function HistorialFocos() {
             .select(".domain").attr("stroke", "var(--color-border)").style("opacity", 0.3);
 
         // Animación de entrada
-        clipRect.transition().duration(2000).ease(d3.easeCubicOut).attr("width", width);
+        /** Para evitar re-ejecución de animaciones */
+        if (!hasAnimated.current) {
+            clipRect.transition().duration(2000).ease(d3.easeQuadInOut).attr("width", width);
+            hasAnimated.current = true;
+        }
 
         return () => { tooltip.remove(); };
     }, [dimensions, data, loading, error]);
