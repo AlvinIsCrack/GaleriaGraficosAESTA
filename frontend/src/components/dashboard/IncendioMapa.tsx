@@ -223,7 +223,7 @@ export default function IncendioMapa() {
             const distance = closest && coords ? Math.hypot(coords[0] - mouseX, coords[1] - mouseY) : Infinity;
 
             if (closest && coords && distance < 20) {
-                overlay.style("cursor", "pointer");
+                overlay.style("cursor", "help");
 
                 tooltip
                     .style("visibility", "visible")

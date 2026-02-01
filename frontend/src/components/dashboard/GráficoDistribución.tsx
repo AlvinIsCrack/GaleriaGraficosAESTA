@@ -53,7 +53,7 @@ export default function GráficoDistribución() {
             .attr("fill", (d: any) => !d.cantidadActivos ? "var(--color-muted-foreground)" : d.cantidadActivos >= 3 ? "var(--color-orange-500)" : "var(--color-amber-500)")
             .attr("rx", 6)
             .attr("opacity", 0.8)
-            .style("cursor", "pointer");
+            .style("cursor", "help");
 
         /** Evitar animación de entrada al ajustar tamaño */
         if (!hasAnimated.current)
